@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Friday Assistant - Voice Chat</title>
+  <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
+</head>
+<body>
+  <h2>🎤 Talk to Friday</h2>
+  <button onclick="connect()">Start Talking</button>
+  <p id="status">Not connected</p>
+
+  <script>
+    const LIVEKIT_URL = "wss://javis-1-dynyqa10.livekit.cloud";
+    const API_KEY = "APILdQrt8irrokn";
+    const API_SECRET = "3oSrv9hsA2MYMs8ZeGeA2QmazDBcryKqin1w6U8HnOF";
+
+    async function getToken(name = "user") {
+      const res = await fetch("https://friday-token.vercel.app/api/token", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          apiKey: API_KEY,
+          apiSecret: API_SECRET,
+          identity: name
+        })
+      });
+      const data = await res.json();
+      return data.token;
+    }
+
+    async function connect() {
+      const token = await getToken("austin");
+      const room = new Livekit.Room();
+      room.on("roomConnected", () => {
+        document.getElementById("status").innerText = "✅ Connected to Friday!";
+      });
+      await room.connect(LIVEKIT_URL, token);
+      await room.localParticipant.enableMicrophone();
+    }
+  </script>
+</body>
+</html>
+
